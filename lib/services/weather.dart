@@ -1,33 +1,32 @@
-class WeatherModel {
-  String getWeatherIcon(int condition) {
-    if (condition < 300) {
-      return '🌩';
-    } else if (condition < 400) {
-      return '🌧';
-    } else if (condition < 600) {
-      return '☔️';
-    } else if (condition < 700) {
-      return '☃️';
-    } else if (condition < 800) {
-      return '🌫';
-    } else if (condition == 800) {
-      return '☀️';
-    } else if (condition <= 804) {
-      return '☁️';
-    } else {
-      return '🤷‍';
-    }
+import 'dart:convert';
+
+import 'package:clima/models/weather_data.dart';
+import 'package:clima/services/location.dart';
+import 'package:clima/services/networking.dart';
+
+class WeatherService {
+  Future<WeatherData> getCurrentLocationWeather() async {
+    LocationData location = LocationData();
+    await location.getCurrentLocation();
+    print(
+      'latitude: ${location.latitude} and longitude: ${location.longitude}',
+    );
+    NetworkHelper forcastData = NetworkHelper(
+      uri: ApiHelper().forcastDataUriByLocation(
+        latitude: location.latitude,
+        longitude: location.longitude,
+      ),
+    );
+
+    String data = await forcastData.getData();
+    return WeatherData.fromJson(jsonDecode(data));
   }
 
-  String getMessage(int temp) {
-    if (temp > 25) {
-      return 'It\'s 🍦 time';
-    } else if (temp > 20) {
-      return 'Time for shorts and 👕';
-    } else if (temp < 10) {
-      return 'You\'ll need 🧣 and 🧤';
-    } else {
-      return 'Bring a 🧥 just in case';
-    }
+  Future<WeatherData> getNameLocationWeather({required String name}) async {
+    NetworkHelper forcastData = NetworkHelper(
+      uri: ApiHelper().forcastDataUriByName(name: name),
+    );
+    String data = await forcastData.getData();
+    return WeatherData.fromJson(jsonDecode(data));
   }
 }

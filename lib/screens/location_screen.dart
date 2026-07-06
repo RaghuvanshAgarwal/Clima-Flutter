@@ -1,7 +1,24 @@
+import 'package:clima/components/current_temperature_container.dart';
+import 'package:clima/components/forecast_row.dart';
+import 'package:clima/components/sun_and_moon_details.dart';
+import 'package:clima/components/unit_toggle.dart';
+import 'package:clima/components/weather_detail_section.dart';
+import 'package:clima/controllers/weather_controller.dart';
+import 'package:clima/models/temperature_unit.dart';
+import 'package:clima/models/weather_data.dart';
+import 'package:clima/screens/city_screen.dart';
+import 'package:clima/screens/loading_screen.dart';
+import 'package:clima/services/weather.dart';
 import 'package:flutter/material.dart';
-import 'package:clima/utilities/constants.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class LocationScreen extends StatefulWidget {
+  late final WeatherController _controller;
+
+  LocationScreen({required WeatherData data}) {
+    _controller = WeatherController(weatherData: data);
+  }
+
   @override
   _LocationScreenState createState() => _LocationScreenState();
 }
@@ -9,63 +26,104 @@ class LocationScreen extends StatefulWidget {
 class _LocationScreenState extends State<LocationScreen> {
   @override
   Widget build(BuildContext context) {
+    CurrentWeatherController currentWeatherController =
+        widget._controller.current;
+    ForecastWeatherController forecastWeatherController =
+        widget._controller.forcast;
+    LocationWeatherController locationWeatherController =
+        widget._controller.location;
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('images/location_background.jpg'),
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(
-                Colors.white.withOpacity(0.8), BlendMode.dstATop),
-          ),
+      appBar: AppBar(
+        centerTitle: true,
+        leading: TextButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) {
+                  return LoadingScreen();
+                },
+              ),
+            );
+          },
+          child: FaIcon(FontAwesomeIcons.locationArrow),
         ),
-        constraints: BoxConstraints.expand(),
-        child: SafeArea(
+        title: Column(
+          children: [
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                locationWeatherController.cityName,
+                style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ),
+            Text(
+              locationWeatherController.dayTime,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return CityScreen();
+                  },
+                ),
+              );
+            },
+            child: FaIcon(FontAwesomeIcons.city),
+          ),
+        ],
+        toolbarHeight: 72,
+      ),
+      body: SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.all(24),
+          width: double.infinity,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            spacing: 25,
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  FlatButton(
-                    onPressed: () {},
-                    child: Icon(
-                      Icons.near_me,
-                      size: 50.0,
-                    ),
-                  ),
-                  FlatButton(
-                    onPressed: () {},
-                    child: Icon(
-                      Icons.location_city,
-                      size: 50.0,
-                    ),
-                  ),
-                ],
+            children: [
+              CurrentTemperatureContainer(
+                url: currentWeatherController.icon,
+                temp: currentWeatherController.temperature,
+                condition: currentWeatherController.condition,
+                feelsLike: currentWeatherController.feelsLike,
+                highTemp: forecastWeatherController.highTemp,
+                lowTemp: forecastWeatherController.lowTemp,
               ),
-              Padding(
-                padding: EdgeInsets.only(left: 15.0),
-                child: Row(
-                  children: <Widget>[
-                    Text(
-                      '32°',
-                      style: kTempTextStyle,
-                    ),
-                    Text(
-                      '☀️',
-                      style: kConditionTextStyle,
-                    ),
-                  ],
-                ),
+              UnitToggle(
+                option1: 'Metric °C',
+                option2: 'Imperial °F',
+                selectedOption:
+                    widget._controller.temperatureUnit ==
+                        TemperatureUnit.Celcius
+                    ? 0
+                    : 1,
+                onValueChanged: (int newValue) {
+                  setState(() {
+                    widget._controller.temperatureUnit = newValue == 0
+                        ? TemperatureUnit.Celcius
+                        : TemperatureUnit.Fahrenheit;
+                  });
+                },
               ),
-              Padding(
-                padding: EdgeInsets.only(right: 15.0),
-                child: Text(
-                  "It's 🍦 time in San Francisco!",
-                  textAlign: TextAlign.right,
-                  style: kMessageTextStyle,
-                ),
+              ForecastRow(data: forecastWeatherController.getHourlyForcast()),
+              WeatherDetailSection(
+                details: currentWeatherController.weatherDetails,
+              ),
+              SunAndMoonDetails(
+                sunRiseTime: forecastWeatherController.sunRiseTime,
+                sunSetTime: forecastWeatherController.sunSetTime,
+                moonIllumination: forecastWeatherController.moonIllumination,
               ),
             ],
           ),
