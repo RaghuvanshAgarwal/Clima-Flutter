@@ -1,19 +1,15 @@
+import 'package:clima/models/weather_detail_section_data.dart';
 import 'package:flutter/material.dart';
 
-class SunAndMoonDetails extends StatelessWidget {
-  final String _sunRiseTime;
-  final String _sunSetTime;
-  final int _moonIllumination;
+class DetailsCard extends StatelessWidget {
+  final String _title;
+  final List<WeatherDetailSectionData> _data;
 
-  const SunAndMoonDetails({
-    super.key,
-    required this._sunRiseTime,
-    required this._sunSetTime,
-    required this._moonIllumination,
-  });
+  const DetailsCard({required this._title, required this._data});
 
   @override
   Widget build(BuildContext context) {
+    int index = 0;
     return Card(
       elevation: 6,
       shape: RoundedRectangleBorder(
@@ -27,7 +23,7 @@ class SunAndMoonDetails extends StatelessWidget {
           spacing: 12,
           children: [
             Text(
-              'Sun & Moon',
+              _title,
               style: Theme.of(context).textTheme.titleLarge!.copyWith(
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).colorScheme.primary,
@@ -35,13 +31,15 @@ class SunAndMoonDetails extends StatelessWidget {
             ),
             Column(
               spacing: 4,
-              children: [
-                _createRow(context, '🌅', 'Sunrise', _sunRiseTime),
-                Divider(height: 2),
-                _createRow(context, '🌄', 'Sunset', _sunSetTime),
-                Divider(height: 2),
-                _createRow(context, '🌕', 'Full Moon', '$_moonIllumination%'),
-              ],
+              children: _data.map((data) {
+                index++;
+                return Column(
+                  children: [
+                    _createRow(context, data.emoji, data.name, data.value),
+                    if (index != _data.length) Divider(height: 2),
+                  ],
+                );
+              }).toList(),
             ),
           ],
         ),
@@ -59,7 +57,12 @@ Widget _createRow(
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
-      Text('$emoji $name', style: Theme.of(context).textTheme.titleMedium),
+      Text(
+        '$emoji $name',
+        style: Theme.of(
+          context,
+        ).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
+      ),
       Text(
         value,
         style: Theme.of(

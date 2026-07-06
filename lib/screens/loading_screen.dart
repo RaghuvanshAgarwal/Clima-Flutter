@@ -46,7 +46,10 @@ class _LoadingScreenState extends State<LoadingScreen> {
           getLocationData();
         },
       );
-      dialog.clientExceptionDialog(context, 'Could not connect to the server');
+      dialog.clientExceptionDialog(
+        context,
+        'Could not connect to the server ${e.message}',
+      );
     } catch (e) {
       AppDialogs dialog = AppDialogs(
         onTap: () {

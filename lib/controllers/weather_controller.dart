@@ -147,6 +147,23 @@ class ForecastWeatherController {
     return data;
   }
 
+  List<WeatherDetailSectionData> get astroDetails {
+    List<WeatherDetailSectionData> data = [
+      WeatherDetailSectionData(
+        emoji: '🌅',
+        name: 'Sunrise',
+        value: sunRiseTime,
+      ),
+      WeatherDetailSectionData(emoji: '🌄', name: 'Sunset', value: sunSetTime),
+      WeatherDetailSectionData(
+        emoji: '🌕',
+        name: 'Full Moon',
+        value: '$moonIllumination%',
+      ),
+    ];
+    return data;
+  }
+
   String get sunRiseTime => _forecast?.astro?.sunrise ?? '';
   String get sunSetTime => _forecast?.astro?.sunset ?? '';
   int get moonIllumination => _forecast?.astro?.moonIllumination ?? 0;

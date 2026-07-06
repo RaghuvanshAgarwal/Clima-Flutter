@@ -2,13 +2,11 @@ import 'package:clima/components/current_temperature_container.dart';
 import 'package:clima/components/forecast_row.dart';
 import 'package:clima/components/sun_and_moon_details.dart';
 import 'package:clima/components/unit_toggle.dart';
-import 'package:clima/components/weather_detail_section.dart';
 import 'package:clima/controllers/weather_controller.dart';
 import 'package:clima/models/temperature_unit.dart';
 import 'package:clima/models/weather_data.dart';
 import 'package:clima/screens/city_screen.dart';
 import 'package:clima/screens/loading_screen.dart';
-import 'package:clima/services/weather.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -117,13 +115,13 @@ class _LocationScreenState extends State<LocationScreen> {
                 },
               ),
               ForecastRow(data: forecastWeatherController.getHourlyForcast()),
-              WeatherDetailSection(
-                details: currentWeatherController.weatherDetails,
+              DetailsCard(
+                title: 'Weather Details',
+                data: currentWeatherController.weatherDetails,
               ),
-              SunAndMoonDetails(
-                sunRiseTime: forecastWeatherController.sunRiseTime,
-                sunSetTime: forecastWeatherController.sunSetTime,
-                moonIllumination: forecastWeatherController.moonIllumination,
+              DetailsCard(
+                title: 'Sun & Moon',
+                data: forecastWeatherController.astroDetails,
               ),
             ],
           ),
